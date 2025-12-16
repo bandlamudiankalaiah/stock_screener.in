@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ stock.name }} ({{ stock.symbol }}) - Stock Analysis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <h1>📈 Stock Screener</h1>
+        <div class="nav-links">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">← Dashboard</a>
+            <button class="btn btn-secondary" onclick="loadScreens()">My Screens</button>
+            <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Company Header -->
+        <div class="card company-header">
+            <div class="company-title">
+                <h1>{{ stock.name }}</h1>
+                <span class="symbol-badge">{{ stock.symbol }}</span>
+                <span class="sector-tag">{{ stock.sector }}</span>
+            </div>
+            <div class="company-price">
+                <div class="price-label">Current Price</div>
+                <div class="price-value">₹{{ stock.current_price }}</div>
+            </div>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="card">
+            <h2>📊 Key Metrics</h2>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Market Cap</div>
+                    <div class="metric-value">₹{{ '%.2f' % (stock.market_cap/1000) }}K Cr</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">P/E Ratio</div>
+                    <div class="metric-value">{{ stock.pe_ratio or 'N/A' }}</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">P/B Ratio</div>
+                    <div class="metric-value">{{ stock.pb_ratio }}</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">ROE</div>
+                    <div class="metric-value {% if stock.roe > 15 %}positive{% else %}negative{% endif %}">{{ stock.roe }}%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">ROCE</div>
+                    <div class="metric-value {% if stock.roce > 15 %}positive{% else %}negative{% endif %}">{{ stock.roce }}%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Debt to Equity</div>
+                    <div class="metric-value {% if stock.debt_to_equity < 1 %}positive{% else %}negative{% endif %}">{{ stock.debt_to_equity }}</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">EPS</div>
+                    <div class="metric-value">₹{{ stock.eps }}</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Revenue Growth</div>
+                    <div class="metric-value {% if stock.revenue_growth > 10 %}positive{% else %}negative{% endif %}">{{ stock.revenue_growth }}%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Profit Growth</div>
+                    <div class="metric-value {% if stock.profit_growth > 10 %}positive{% else %}negative{% endif %}">{{ stock.profit_growth }}%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Dividend Yield</div>
+                    <div class="metric-value">{{ stock.dividend_yield }}%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Promoter Holding</div>
+                    <div class="metric-value">{{ stock.promoter_holding }}%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Current Ratio</div>
+                    <div class="metric-value">{{ stock.current_ratio }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Summary -->
+        <div class="card">
+            <h2>💡 Quick Analysis</h2>
+            <div class="analysis-points">
+                {% if stock.roe > 15 %}
+                <div class="analysis-point positive-point">✓ Strong ROE above 15%</div>
+                {% else %}
+                <div class="analysis-point negative-point">✗ ROE below 15%</div>
+                {% endif %}
+                
+                {% if stock.debt_to_equity < 1 %}
+                <div class="analysis-point positive-point">✓ Low debt levels</div>
+                {% else %}
+                <div class="analysis-point negative-point">✗ High debt to equity ratio</div>
+                {% endif %}
+                
+                {% if stock.revenue_growth > 10 %}
+                <div class="analysis-point positive-point">✓ Good revenue growth</div>
+                {% else %}
+                <div class="analysis-point negative-point">✗ Slow revenue growth</div>
+                {% endif %}
+                
+                {% if stock.pe_ratio and stock.pe_ratio < 25 %}
+                <div class="analysis-point positive-point">✓ Reasonable valuation (P/E < 25)</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Stock Screener</h3>
+                <p>Stock analysis and screening tool for investors in India.</p>
+                <p class="copyright">© 2025 Stock Screener. Made with ❤️ in India.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Product</h4>
+                <ul>
+                    <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                    <li><a href="{{ url_for('create_screen') }}">Create Screen</a></li>
+                    <li><a href="#" onclick="loadScreens()">My Screens</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Learn</h4>
+                <ul>
+                    <li><a href="#">Documentation</a></li>
+                    <li><a href="#">Tutorials</a></li>
+                    <li><a href="#">Support</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>About</h4>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Team</a></li>
+                    <li><a href="#">Terms & Privacy</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Screens Modal -->
+    <div id="screensModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>My Saved Screens</h2>
+            <div id="screensList"></div>
+        </div>
+    </div>
+
+    <script>
+        const METRICS = {{ metrics|tojson }};
+    </script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

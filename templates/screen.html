@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ 'Create' if mode == 'create' else 'Edit' }} Screen</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <h1>📈 {{ 'Create' if mode == 'create' else 'Edit' }} Stock Screen</h1>
+        <div class="nav-links">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">← Dashboard</a>
+            <button class="btn btn-secondary" onclick="loadScreens()">My Screens</button>
+            <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
+        </div>
+    </nav>
+
+    <div class="container" style="max-width: 900px;">
+        <div class="card">
+            <div class="form-group">
+                <label><strong>Screen Name</strong></label>
+                <input type="text" id="screenName" placeholder="e.g., Undervalued Banking Stocks"
+                       value="{{ screen_data.name if screen_data and screen_data.name else '' }}" style="font-size: 18px;">
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Screening Criteria</h2>
+            <p class="help-text">Add filters to find stocks that match your investment criteria</p>
+            
+            <div id="criteriaContainer"></div>
+            
+            <button class="btn btn-primary" onclick="addCriterion()">+ Add Filter</button>
+            <button class="btn btn-success" onclick="saveScreen()" style="margin-left: 10px;">
+                💾 Save Screen
+            </button>
+            <button class="btn btn-info" onclick="testScreen()">🔍 Test Screen</button>
+        </div>
+
+        <!-- Test Results -->
+        <div id="testResults" class="card" style="display: none;">
+            <h3>Screen Results (<span id="resultCount">0</span> stocks)</h3>
+            <div class="table-container">
+                <table id="testTable">
+                    <thead>
+                        <tr>
+                            <th>Symbol</th><th>Name</th><th>Sector</th><th>MCap</th>
+                            <th>Price</th><th>PE</th><th>ROE%</th><th>ROCE%</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>📈 Stock Screener</h3>
+                <p>Stock analysis and screening tool for investors in India.</p>
+                <p class="copyright">© 2025 Stock Screener. Made with ❤️ in India.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Product</h4>
+                <ul>
+                    <li><a href="/">Dashboard</a></li>
+                    <li><a href="/screen/create">Create Screen</a></li>
+                    <li><a href="#" onclick="loadScreens()">My Screens</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Learn</h4>
+                <ul>
+                    <li><a href="#">Documentation</a></li>
+                    <li><a href="#">Support</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>About</h4>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Terms & Privacy</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const METRICS = {{ metrics|tojson }};
+        const MODE = '{{ mode }}';
+        const SCREEN_DATA = {{ screen_data|tojson if screen_data else '{}' }};
+    </script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    <script>
+        // Load existing criteria if editing
+        document.addEventListener('DOMContentLoaded', function() {
+            if (MODE === 'edit' && SCREEN_DATA.criteria) {
+                SCREEN_DATA.criteria.forEach(criterion => addCriterion(criterion));
+            }
+        });
+    </script>
+</body>
+</html>

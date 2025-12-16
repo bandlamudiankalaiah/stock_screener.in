@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Screener - Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <h1>📈 Stock Screener</h1>
+        <div class="nav-links">
+            <button class="btn btn-secondary" onclick="loadScreens()">My Screens</button>
+            <button class="btn btn-info" onclick="window.location.href='/screen/create'">+ Create Screen</button>
+            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Theme">🌓</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Hero Section with Search -->
+        <div class="card hero-section">
+            <h2 class="hero-title">Stock analysis and screening tool for investors in India</h2>
+            <div class="search-container">
+                <input type="text" id="companySearch" placeholder="Search for a company..." 
+                       onkeyup="searchCompanies()" autocomplete="off">
+                <div id="searchResults" class="search-results"></div>
+            </div>
+            
+            <div class="quick-analyze">
+                <p class="analyze-label">Or analyse:</p>
+                <div class="company-chips">
+                    {% for stock in featured[:12] %}
+                    <a href="/company/{{ stock.symbol }}" class="company-chip">{{ stock.name }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Filters -->
+        <div class="card">
+            <div class="filters-header">
+                <h2>📊 Stock Universe</h2>
+                <div class="quick-filters">
+                    <select id="sectorFilter" onchange="applyQuickFilter()">
+                        <option value="">All Sectors</option>
+                        {% for sector in sectors %}
+                        <option value="{{ sector }}">{{ sector }}</option>
+                        {% endfor %}
+                    </select>
+                    <button class="btn btn-success" onclick="exportData()">📥 Export CSV</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Table -->
+        <div class="card">
+            <div class="table-container">
+                <table id="stocksTable">
+                    <thead>
+                        <tr>
+                            <th>Symbol</th>
+                            <th>Company Name</th>
+                            <th>Sector</th>
+                            <th>Market Cap</th>
+                            <th>Price</th>
+                            <th>P/E</th>
+                            <th>P/B</th>
+                            <th>ROE %</th>
+                            <th>ROCE %</th>
+                            <th>Debt/Eq</th>
+                            <th>Rev Growth %</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stocksTableBody">
+                        {% for stock in stocks %}
+                        <tr>
+                            <td><strong>{{ stock.symbol }}</strong></td>
+                            <td>{{ stock.name }}</td>
+                            <td><span class="sector-tag">{{ stock.sector }}</span></td>
+                            <td>₹{{ '%.2f' % (stock.market_cap/1000) }}K Cr</td>
+                            <td>₹{{ stock.current_price }}</td>
+                            <td>{{ stock.pe_ratio or 'N/A' }}</td>
+                            <td>{{ stock.pb_ratio }}</td>
+                            <td class="{% if stock.roe > 15 %}positive{% else %}negative{% endif %}">{{ stock.roe }}%</td>
+                            <td class="{% if stock.roce > 15 %}positive{% else %}negative{% endif %}">{{ stock.roce }}%</td>
+                            <td class="{% if stock.debt_to_equity < 1 %}positive{% else %}negative{% endif %}">{{ stock.debt_to_equity }}</td>
+                            <td class="{% if stock.revenue_growth > 10 %}positive{% else %}negative{% endif %}">{{ stock.revenue_growth }}%</td>
+                            <td><a href="/company/{{ stock.symbol }}" class="btn btn-sm btn-primary">Analyze</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <p id="resultCount">Showing {{ stocks|length }} stocks</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>📈 Stock Screener</h3>
+                <p>Stock analysis and screening tool for investors in India.</p>
+                <p class="copyright">© 2025 Stock Screener. Made with ❤️ in India.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Product</h4>
+                <ul>
+                    <li><a href="/">Dashboard</a></li>
+                    <li><a href="/screen/create">Create Screen</a></li>
+                    <li><a href="#" onclick="loadScreens()">My Screens</a></li>
+                    <li><a href="#">Premium</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Learn</h4>
+                <ul>
+                    <li><a href="#">Documentation</a></li>
+                    <li><a href="#">Tutorials</a></li>
+                    <li><a href="#">What's New</a></li>
+                    <li><a href="#">Install App</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>About</h4>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Team</a></li>
+                    <li><a href="#">Support</a></li>
+                    <li><a href="#">Terms & Privacy</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Screens Modal -->
+    <div id="screensModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>My Saved Screens</h2>
+            <div id="screensList"></div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
