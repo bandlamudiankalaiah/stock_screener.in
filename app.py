@@ -225,4 +225,5 @@ def export_data():
     return Response(output.getvalue(), mimetype='text/csv', headers={"Content-Disposition": "attachment; filename=stocks.csv"})
 
 if __name__ == '__main__':
+    # For local development
     app.run(debug=True, port=5000)
